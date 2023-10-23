@@ -3,26 +3,8 @@
 
 {% block content %}
 
+{% include "includes/messages.html"%}
 <div class="row">
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'error' %}
-                <div class="alert alert-danger" role="alert">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-        
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                <div class="alert alert-success" role="alert">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
     <div class="col-sm-12">
        <div class="card">
           <div class="card-body">
@@ -62,11 +44,15 @@
                     <div class="col-12 col-sm-6">
                         <div class="form-group">
                             <label> Profile Pic </label>
-                            <input name="profile_pic" type="file" class="form-control" >
+                            <img src="/{{user.profilepic}}"alt="avatar" width="150px">
+                            <input name="profilepic" type="file" class="form-control" value="/{{user.profilepic}}" >
                         </div>
                     </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary">Update Profile</button>
+                            <button type="submit" class="btn btn-danger">
+                                <a href="{% url 'changepassword' %}">Change Password</a>
+                            </button>
                         </div>
                     </div>
                 </form>
