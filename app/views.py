@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
-from app.models import customUser
+from app.models import Coursemodel, Sessionyearmodel, Studentmodel, customUser
 from django.contrib.auth import login as auth_login
 
 # Create your views here.
@@ -11,7 +11,9 @@ def home(request):
 
 def signuppage(request):
     error_message = {
-        'password_error' : 'Password not match'
+        'password_error':'Password not match',
+        'username_error':'User name already exist',
+        'email_error':'Email alredy exist'
     }
     if request.method == "POST":
         name=request.POST.get("name")
@@ -19,9 +21,14 @@ def signuppage(request):
         pass1=request.POST.get("password")
         pass2=request.POST.get("confirmpassword")
         if pass1 == pass2:
-            myuser = customUser.objects.create_user(name,email,pass1)
-            myuser.save()
-            return redirect("loginpage")
+            if customUser.objects.filter(email=email).exists():
+                messages.error(request,error_message['email_error'])
+            elif customUser.objects.filter(username=name).exists():
+                messages.error(request,error_message["username_error"])
+            else:
+                myuser = customUser.objects.create_user(name,email,pass1)
+                myuser.save()
+                return redirect("loginpage")
         else:
             messages.error(request,error_message['password_error'])
 
@@ -123,3 +130,49 @@ def changepassword(request):
             messages.error(request,error_messages["oldpassword"])
         
     return render(request,"changepassword.html")
+
+def addstudent(request):
+    error_messages = {
+        'success':'Student add Successfully',
+        'error':'Already exists'
+    }
+    if request.method == "POST":
+       firstname = request.POST.get("first_name")
+       lastname = request.POST.get("last_name")
+       email = request.POST.get("email")
+       username = request.POST.get("username")
+       password = request.POST.get("password")
+       address = request.POST.get("address")
+       gender = request.POST.get("gender")
+       courseid = request.POST.get("courseid")
+       sessionid = request.POST.get("sessionyearid")
+       profilepic = request.POST.get("profilepic")
+       if customUser.objects.filter(email=email).exists() or customUser.objects.filter(password=password).exists():
+           messages.error(request,error_messages["error"])
+       else:
+           user = customUser.objects.create_user(username=username,email=email,password=password)
+           user.first_name = firstname
+           user.last_name = lastname
+           user.profilepic = profilepic
+           user.user_type = 3
+           user.save()
+           usercourse = Coursemodel.objects.get(id=courseid)
+           sessionyear = Sessionyearmodel.objects.get(id=sessionid)
+           student = Studentmodel(
+               admin = user,
+               address = address,
+               sessionid = sessionyear,
+               courseid = usercourse,
+               gender = gender
+           )
+           student.save()
+           messages.success(request,error_messages["success"])
+           return redirect("addstudent")
+
+    course = Coursemodel.objects.all()
+    session = Sessionyearmodel.objects.all()
+    context = {
+        'course':course,
+        'session':session,
+    }
+    return render(request,'myadmin/addstudent.html',context)
