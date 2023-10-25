@@ -13,5 +13,7 @@ urlpatterns = [
     path('profileupdate', views.profileupdate,name="profileupdate"),
     path('changepassword', views.changepassword,name="changepassword"),
     path('addstudent', views.addstudent,name="addstudent"),
+    path('studentlist', views.studentlist,name="studentlist"),
+    path('editstudent<str:id>',views.editstudent,name="editstudent")
 
 ]

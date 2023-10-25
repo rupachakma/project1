@@ -150,7 +150,7 @@ def addstudent(request):
        if customUser.objects.filter(email=email).exists() or customUser.objects.filter(password=password).exists():
            messages.error(request,error_messages["error"])
        else:
-           user = customUser.objects.create_user(username=username,email=email,password=password)
+           user = customUser.objects.create_user(username,password,email)
            user.first_name = firstname
            user.last_name = lastname
            user.profilepic = profilepic
@@ -176,3 +176,20 @@ def addstudent(request):
         'session':session,
     }
     return render(request,'myadmin/addstudent.html',context)
+
+def studentlist(request):
+    allstudent = Studentmodel.objects.all()
+    return render(request,"myadmin/studentlist.html",{'allstudent':allstudent})
+
+def editstudent(request,id):
+    studentid = Studentmodel.objects.get(id=id)
+    course = Coursemodel.objects.all()
+    session = Sessionyearmodel.objects.all()
+
+    context = {
+        'studentid':studentid,
+        'course':course,
+        'session':session,
+    }
+
+    return render(request,"myadmin/editstudent.html",context)
