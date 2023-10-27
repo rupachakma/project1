@@ -36,3 +36,24 @@ class Studentmodel(models.Model):
     updateat = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.admin.first_name +'-'+self.admin.last_name
+    
+class Teachermodel(models.Model):
+    admin = models.OneToOneField(customUser,on_delete=models.CASCADE)
+    address = models.TextField()
+    gender = models.CharField(max_length=50)
+    mobile = models.CharField(max_length=14)
+    courseid = models.ForeignKey(Coursemodel,on_delete=models.DO_NOTHING,default=1)
+    experience = models.CharField(max_length=50)
+    createat = models.DateTimeField(auto_now_add=True)
+    updateat = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.admin.first_name + " " + self.admin.last_name
+    
+class Subjectmodel(models.Model):
+    name = models.CharField(max_length=50)
+    course = models.ForeignKey(Coursemodel,on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teachermodel,on_delete=models.CASCADE)
+    createat = models.DateTimeField(auto_now_add=True,null=True)
+    updateat = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name

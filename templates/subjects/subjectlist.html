@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row">
+   <div class="col-sm-12">
+      <div class="card card-table">
+         <div class="card-body">
+            <div class="table-responsive">
+               <table id="table_id" class="table table-hover table-center mb-0">
+                  <thead>
+                     <tr>
+                       <th>Subject ID</th>
+                       <th>Subject Name</th>
+                        <th>Course Name</th>
+                        <th>Teacher Name</th>
+                        <th>Create At</th>
+                        <th>Update At</th>
+                        <th class="text-right">Action</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                    
+                    {% for s in  subject %}
+                      
+                    <tr>
+                        <td>{{s.id}}</td>
+                        <td>{{s.name}}</td>
+                        <td>{{s.course}}</td>
+                        <td>{{s.teacher}}</td>
+                        <td>{{s.createat}}</td>
+                        <td>{{s.updateat}}</td>
+                        <td class="text-right">
+                           <div class="actions">
+                              <a href="{% url 'editsubject' s.id %}" class="btn btn-sm bg-success-light mr-2">
+                              <i class="fas fa-pen"><small>edit</small></i>
+                              </a>
+                              <a href="#" class="btn btn-sm bg-danger-light">
+                              <i class="fas fa-trash"><small>delete</small></i>
+                              </a>
+                           </div>
+                        </td>
+                     </tr>   
+                     {% endfor %} 
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+{% endblock  %}
+    

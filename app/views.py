@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
-from app.models import Coursemodel, Sessionyearmodel, Studentmodel, customUser
+from app.models import Coursemodel, Sessionyearmodel, Studentmodel, Teachermodel,Subjectmodel, customUser
 from django.contrib.auth import login as auth_login
 
 # Create your views here.
@@ -146,7 +146,8 @@ def addstudent(request):
        gender = request.POST.get("gender")
        courseid = request.POST.get("courseid")
        sessionid = request.POST.get("sessionyearid")
-       profilepic = request.POST.get("profilepic")
+       profilepic = request.FILES.get("profilepic")
+
        if customUser.objects.filter(email=email).exists() or customUser.objects.filter(password=password).exists():
            messages.error(request,error_messages["error"])
        else:
@@ -156,8 +157,10 @@ def addstudent(request):
            user.profilepic = profilepic
            user.user_type = 3
            user.save()
+
            usercourse = Coursemodel.objects.get(id=courseid)
            sessionyear = Sessionyearmodel.objects.get(id=sessionid)
+           
            student = Studentmodel(
                admin = user,
                address = address,
@@ -167,7 +170,7 @@ def addstudent(request):
            )
            student.save()
            messages.success(request,error_messages["success"])
-           return redirect("addstudent")
+           return redirect("studentlist")
 
     course = Coursemodel.objects.all()
     session = Sessionyearmodel.objects.all()
@@ -175,11 +178,11 @@ def addstudent(request):
         'course':course,
         'session':session,
     }
-    return render(request,'myadmin/addstudent.html',context)
+    return render(request,'student/addstudent.html',context)
 
 def studentlist(request):
     allstudent = Studentmodel.objects.all()
-    return render(request,"myadmin/studentlist.html",{'allstudent':allstudent})
+    return render(request,"student/studentlist.html",{'allstudent':allstudent})
 
 def editstudent(request,id):
     studentid = Studentmodel.objects.get(id=id)
@@ -192,4 +195,250 @@ def editstudent(request,id):
         'session':session,
     }
 
-    return render(request,"myadmin/editstudent.html",context)
+    return render(request,"student/editstudent.html",context)
+
+def updatestudent(request):
+    error_messages = {
+        'success':'Student add Successfully',
+        'error':'Already exists'
+    }
+    if request.method == "POST":
+       firstname = request.POST.get("first_name")
+       lastname = request.POST.get("last_name")
+       email = request.POST.get("email")
+       username = request.POST.get("username")
+       password = request.POST.get("password")
+       address = request.POST.get("address")
+       gender = request.POST.get("gender")
+       courseid = request.POST.get("courseid")
+       sessionid = request.POST.get("sessionyearid")
+       profilepic = request.FILES.get("profilepic")
+
+       if customUser.objects.filter(email=email).exists() or customUser.objects.filter(password=password).exists():
+           messages.error(request,error_messages["error"])
+       else:
+           user = customUser.objects.create_user(username,password,email)
+           user.first_name = firstname
+           user.last_name = lastname
+           user.profilepic = profilepic
+           user.user_type = 3
+           user.save()
+
+           usercourse = Coursemodel.objects.get(id=courseid)
+           sessionyear = Sessionyearmodel.objects.get(id=sessionid)
+           
+           student = Studentmodel(
+               admin = user,
+               address = address,
+               sessionid = sessionyear,
+               courseid = usercourse,
+               gender = gender
+           )
+           student.save()
+           messages.success(request,error_messages["success"])
+           return redirect("studentlist")
+
+    course = Coursemodel.objects.all()
+    session = Sessionyearmodel.objects.all()
+    context = {
+        'course':course,
+        'session':session,
+    }
+    return render(request,'student/addstudent.html',context)
+
+def deletestudent(request,id):
+    student = Studentmodel.objects.get(id=id)
+    student.delete()
+    return redirect("studentlist")
+
+def addteacher(request):
+    error_messages = {
+        'success':'Teacher add successfully',
+        'error':'Already exists'
+    }
+    if request.method == "POST":
+        firstname = request.POST.get("first_name")
+        lastname = request.POST.get("last_name")
+        email = request.POST.get("email")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        address = request.POST.get("address")
+        gender = request.POST.get("gender")
+        courseid = request.POST.get("courseid")
+        mobile = request.POST.get("mobile")
+        experience = request.POST.get("experience")
+        profilepic = request.FILES["profilepic"]
+
+        if customUser.objects.filter(email=email).exists():
+            messages.error(request,error_messages["error"])
+        elif customUser.objects.filter(username=username).exists():
+            messages.error(request,error_messages["error"])
+        else:
+            user = customUser.objects.create_user(username=username,email=email,password=password)
+            user.first_name = firstname
+            user.last_name = lastname
+            user.profilepic = profilepic
+            user.user_type = 2
+            user.save()
+            courseid = Coursemodel.objects.get(id=courseid)
+
+            teacher = Teachermodel(
+                admin = user,
+                address = address,
+                gender = gender,
+                mobile = mobile,
+                courseid = courseid,
+                experience = experience
+            )
+            teacher.save()
+            messages.success(request,error_messages["success"])
+            return redirect("teacherlist")
+    course = Coursemodel.objects.all()
+    context = {
+        'course':course
+    }
+
+    return render(request,"staff/addteacher.html",context)
+
+def teacherlist(request):
+    teacher = Teachermodel.objects.all()
+    return render(request,"staff/teacherlist.html",{'teacher':teacher})
+
+def editteacher(request):
+    # teacherid = Teachermodel.objects.get(id=id)
+    # course = Coursemodel.objects.all()
+    # context = {
+    #     'teacherid':teacherid,
+    #     'course':course,
+    # }
+
+    return render(request,"staff/editteacher.html")
+
+def teacherdelete(request,id):
+    teacher = Teachermodel.objects.get(id=id)
+    teacher.delete()
+    return redirect("teacherlist")   
+
+def adddepartment(request):
+    error_messages = {
+        'success':'Department add successfully',
+        'error':'Already exists'
+    }
+    if request.method == "POST":
+        dept_name = request.POST.get("department_name")
+
+        if Coursemodel.objects.filter(name=dept_name):
+            messages.error(request,error_messages['error'])
+        else:
+            course = Coursemodel(
+                name = dept_name,
+            )
+            course.save()
+            messages.success(request,error_messages["success"])
+            return redirect("departmentlist")
+
+    return render(request,"department/adddepartment.html")
+
+def departmentlist(request):
+    department = Coursemodel.objects.all()
+    return render(request,"department/departmentlist.html",{'department':department})
+
+def editdepartment(request,id):
+    
+    course = Coursemodel.objects.get(id=id)
+    context = {
+        "course": course,
+    }
+    
+    return render(request,"department/editdepartment.html",context)
+
+def updatedepartment(request ):
+    error_messages = {
+        'success': 'Department Updated Successfully',
+        'error': 'Department Update Failed',
+    }
+    if request.method == "POST":
+        department_id = request.POST.get("department_id")
+        department_name = request.POST.get("department_name")
+
+        course = Coursemodel.objects.get(id=department_id)
+        course.name = department_name
+        course.save()
+        messages.success(request,error_messages["success"])
+        return redirect("departmentlist")
+    else:
+        messages.error(request,error_messages["error"])
+    return render(request,"department/editdepartment.html")
+  
+def departmentdelete(request,id):
+    dept = Coursemodel.objects.get(id=id)
+    dept.delete()
+    return redirect("departmentlist")
+
+def addsubject(request):
+    error_messages = {
+        'success':'Subject add successfully',
+        'error':'Already exists'
+    }
+    if request.method == "POST":
+        sub_id = request.POST.get("subject_id")
+        sub_name = request.POST.get("subject_name")
+        courseid = request.POST.get("course_id")
+        teacherid = request.POST.get("teacher_id")
+        
+        courseid = Coursemodel.objects.get(id=courseid)
+        teacherid = Teachermodel.objects.get(id=teacherid)
+
+        sub = Subjectmodel(
+        name = sub_name,
+        course = courseid,
+        teacher = teacherid
+        )
+        sub.save()
+        messages.success(request,error_messages["success"])
+        return redirect("subjectlist")
+    
+    course = Coursemodel.objects.all()
+    teacher = Teachermodel.objects.all()
+    context = {
+        'course':course,
+        'teacher':teacher
+    }
+    return render(request,"subjects/addsubject.html",context)
+
+def subjectlist(request):
+    subject = Subjectmodel.objects.all()
+    return render(request,"subjects/subjectlist.html",{'subject':subject})
+
+def editsubject(request,id):
+    subject = Subjectmodel.objects.get(id=id)
+    context = {
+        'subject':subject
+    }
+    return render(request,"subjects/editsubject.html",context)
+
+def updatesubject(request):
+    error_messages = {
+        'success': 'Subject Updated Successfully',
+        'error': 'Subject Update Failed',
+    }
+    if request.method == "POST":
+        sub_id = request.POST.get("subject_id")
+        sub_name = request.POST.get("subject_name")
+        courseid = request.POST.get("course_id")
+        teacherid = request.POST.get("teacher_id")
+        
+        courseid = Coursemodel.objects.get(id=courseid)
+        teacherid = Teachermodel.objects.get(id=teacherid)
+
+        subject=Subjectmodel(
+        id=sub_id,
+        name=sub_name,
+        course=courseid,
+        teacher=teacherid,
+        )
+        subject.save()
+ 
+        messages.success(request, error_messages['success'])
+        return redirect("subjectList")
+    return render(request,"subjects/editsubject.html")

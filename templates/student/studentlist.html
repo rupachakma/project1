@@ -17,7 +17,9 @@
                          <th>Email</th>
                          <th>Course</th>
                          <th>Session Year</th>
-                         <th>gender</th>
+                         <th>Gender</th>
+                         <th>Create At</th>
+                         <th>Update At</th>
                          <th class="text-right">Action</th>
                       </tr>
                    </thead>
@@ -38,22 +40,28 @@
                          <td>{{s.courseid}}</td>
                          <td>{{s.sessionid}}</td>
                          <td>{{s.gender}}</td>
+                         <td>{{s.createat}}</td>
+                         <td>{{s.updateat}}</td>
                          <td class="text-right">
                             <div class="actions">
                                <a href="{% url 'editstudent' s.id %}" class="btn btn-sm bg-success-light mr-2">
-                               <i class="fas fa-pen"> Edit</i>
+                               <i class="fas fa-pen"><small>edit</small></i>
                                </a>
-                               <a href="#" class="btn btn-sm bg-danger-light">
-                               <i class="fas fa-trash">Delete</i>
+                               <a href="{% url 'deletestudent' s.id %}" class="btn btn-sm bg-danger-light">
+                               <i class="fas fa-trash"><small>delete</small></i>
                                </a>
                             </div>
                          </td>
                       </tr>   
                       {% endfor %} 
                    </tbody>
+                   <div>
+                     <a href="{% url 'addstudent' %}" class="btn btn-primary text-center">Add Student</a>
+                   </div>
                 </table>
              </div>
           </div>
+          
        </div>
     </div>
  </div>
