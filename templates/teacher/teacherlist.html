@@ -8,6 +8,9 @@
           <div class="card-body">
              <div class="table-responsive">
                 <table id="table_id" class="table table-hover table-center mb-0">
+                  <div>
+                     <h3>Teacher List</h3>
+                  </div>
                    <thead>
                       <tr>
                         <th>Teacher ID</th>
@@ -15,7 +18,7 @@
                          <th>UserName</th>
                          <th>Email</th>
                          <th>Course</th>
-                         <th>Gnder</th>
+                         <th>Gender</th>
                          <th>Create At</th>
                          <th>Update At</th>
                          <th class="text-right">Action</th>
@@ -41,7 +44,7 @@
                          <td>{{t.updateat}}</td>
                          <td class="text-right">
                             <div class="actions">
-                               <a href="{% url 'editteacher'%}" class="btn btn-sm bg-success-light mr-2">
+                               <a href="{% url 'editteacher' t.id %}" class="btn btn-sm bg-success-light mr-2">
                                <i class="fas fa-pen"><small>edit</small></i>
                                </a>
                                <a href="{% url 'teacherdelete' t.id %}" class="btn btn-sm bg-danger-light">
@@ -53,6 +56,9 @@
                       {% endfor %} 
                    </tbody>
                 </table>
+                <div>
+                  <a href="{% url 'addteacher' %}" class="btn btn-primary">Add Teacher</a>
+                </div>
              </div>
           </div>
        </div>

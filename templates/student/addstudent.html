@@ -13,7 +13,7 @@
                       <h5 class="form-title"><span>Add Student</span></h5>
                    </div>
 
-                   {% include "includes/messages.html"%}
+                   
 
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
@@ -98,9 +98,10 @@
                    
                    <div class="col-12">
                       <button type="submit" class="btn btn-primary">Add Student</button>
+                      <a href="{% url 'studentlist' %}" class="btn btn-info">Student List</a>
                    </div>
                    <div class="col-12">
-                   
+                     {% include "includes/messages.html"%}
                   </div>
                 </div>
              </form>

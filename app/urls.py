@@ -23,7 +23,8 @@ urlpatterns = [
     # Teacher Path
     path('addteacher', views.addteacher,name="addteacher"), 
     path('teacherlist', views.teacherlist,name="teacherlist"), 
-    path('editteacher', views.editteacher,name="editteacher"), 
+    path('editteacher<str:id>', views.editteacher,name="editteacher"), 
+    path('updateteacher', views.updateteacher,name="updateteacher"), 
     path('teacherdelete<str:id>', views.teacherdelete,name="teacherdelete"), 
 
     # Department Path
@@ -38,5 +39,6 @@ urlpatterns = [
     path('subjectlist', views.subjectlist,name="subjectlist"), 
     path('editsubject<str:id>', views.editsubject,name="editsubject"), 
     path('updatesubject', views.updatesubject,name="updatesubject"),
+    path('subjectdelete<str:id>', views.subjectdelete,name="subjectdelete"),
 ]
 

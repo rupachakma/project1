@@ -62,7 +62,16 @@ def logoutpage(request):
     return redirect("loginpage")
 
 def adminpage(request):
-    return render(request,"myadmin/adminhome.html")
+    teacher = Teachermodel.objects.all().count
+    student =Studentmodel.objects.all().count
+    subject = Subjectmodel.objects.all().count
+    context = {
+        'teacher':teacher,
+        'student':student,
+        'subject':subject,
+
+    }
+    return render(request,"myadmin/adminhome.html",context)
 
 def myprofile(request):
     user = request.user
@@ -170,7 +179,7 @@ def addstudent(request):
            )
            student.save()
            messages.success(request,error_messages["success"])
-           return redirect("studentlist")
+           return redirect("addstudent")
 
     course = Coursemodel.objects.all()
     session = Sessionyearmodel.objects.all()
@@ -185,12 +194,12 @@ def studentlist(request):
     return render(request,"student/studentlist.html",{'allstudent':allstudent})
 
 def editstudent(request,id):
-    studentid = Studentmodel.objects.get(id=id)
+    studentid = Studentmodel.objects.filter(id=id)
     course = Coursemodel.objects.all()
     session = Sessionyearmodel.objects.all()
 
     context = {
-        'studentid':studentid,
+        'student':studentid,
         'course':course,
         'session':session,
     }
@@ -199,10 +208,11 @@ def editstudent(request,id):
 
 def updatestudent(request):
     error_messages = {
-        'success':'Student add Successfully',
-        'error':'Already exists'
+        'success':'Student update Successfully',
+        'error':'Student update failed'
     }
     if request.method == "POST":
+       studentid = request.POST.get("student_id")
        firstname = request.POST.get("first_name")
        lastname = request.POST.get("last_name")
        email = request.POST.get("email")
@@ -214,37 +224,32 @@ def updatestudent(request):
        sessionid = request.POST.get("sessionyearid")
        profilepic = request.FILES.get("profilepic")
 
-       if customUser.objects.filter(email=email).exists() or customUser.objects.filter(password=password).exists():
-           messages.error(request,error_messages["error"])
-       else:
-           user = customUser.objects.create_user(username,password,email)
-           user.first_name = firstname
-           user.last_name = lastname
-           user.profilepic = profilepic
-           user.user_type = 3
-           user.save()
+       user = customUser.objects.get(id=studentid)
+       user.first_name = firstname
+       user.last_name = lastname
+       user.email = email
+       user.username = username
 
-           usercourse = Coursemodel.objects.get(id=courseid)
-           sessionyear = Sessionyearmodel.objects.get(id=sessionid)
-           
-           student = Studentmodel(
-               admin = user,
-               address = address,
-               sessionid = sessionyear,
-               courseid = usercourse,
-               gender = gender
-           )
-           student.save()
-           messages.success(request,error_messages["success"])
-           return redirect("studentlist")
+       if password is not None:
+          user.set_password(password)
+       if profilepic is not None:
+          user.profilepic = profilepic
+       user.save()
 
-    course = Coursemodel.objects.all()
-    session = Sessionyearmodel.objects.all()
-    context = {
-        'course':course,
-        'session':session,
-    }
-    return render(request,'student/addstudent.html',context)
+       student = Studentmodel.objects.get(admin = studentid)
+       student.address = address,
+       student.gender = gender,
+
+       session = Sessionyearmodel.objects.get(id=sessionid)
+       student.sessionid=session
+
+       course=Coursemodel.objects.get(id=courseid)
+       student.courseid=course
+       student.save()
+       messages.success(request,error_messages["success"])
+       return redirect("studentlist")
+
+    return render(request,"student/editstudent.html")
 
 def deletestudent(request,id):
     student = Studentmodel.objects.get(id=id)
@@ -292,27 +297,72 @@ def addteacher(request):
             )
             teacher.save()
             messages.success(request,error_messages["success"])
-            return redirect("teacherlist")
+            return redirect("addteacher")
     course = Coursemodel.objects.all()
     context = {
         'course':course
     }
 
-    return render(request,"staff/addteacher.html",context)
+    return render(request,"teacher/addteacher.html",context)
 
 def teacherlist(request):
     teacher = Teachermodel.objects.all()
-    return render(request,"staff/teacherlist.html",{'teacher':teacher})
+    return render(request,"teacher/teacherlist.html",{'teacher':teacher})
 
-def editteacher(request):
-    # teacherid = Teachermodel.objects.get(id=id)
-    # course = Coursemodel.objects.all()
-    # context = {
-    #     'teacherid':teacherid,
-    #     'course':course,
-    # }
+def editteacher(request,id):
+    teacher = Teachermodel.objects.filter(id=id)
+    course = Coursemodel.objects.all()
+    context = {
+        'teacher':teacher,
+        'course':course,
+    }
 
-    return render(request,"staff/editteacher.html")
+    return render(request,"teacher/editteacher.html",context)
+
+def updateteacher(request):
+    error_messages = {
+        'success':'Teacher Update successfully',
+        'error':'Teacher update failed'
+    }
+    if request.method == "POST":
+        teacherid = request.POST.get("teacher_id")
+        firstname = request.POST.get("first_name")
+        lastname = request.POST.get("last_name")
+        email = request.POST.get("email")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        address = request.POST.get("address")
+        gender = request.POST.get("gender")
+        courseid = request.POST.get("courseid")
+        mobile = request.POST.get("mobile")
+        experience = request.POST.get("experience")
+        profilepic = request.FILES["profilepic"]
+
+        user = customUser.objects.get(id=teacherid)
+        user.first_name = firstname
+        user.last_name = lastname
+        user.email = email
+        user.username = username
+
+        if password is not None:
+            user.set_password(password)
+        if profilepic is not None:
+            user.profilepic = profilepic
+        user.save()
+
+        teacher = Teachermodel.objects.get(admin = teacherid)
+        teacher.address = address,
+        teacher.gender = gender,
+        teacher.mobile = mobile,
+        teacher.experience = experience
+
+        course=Coursemodel.objects.get(id=courseid)
+        teacher.courseid=course
+        teacher.save()
+        messages.success(request,error_messages["success"])
+        return redirect("teacherlist")
+    
+    return render(request,"teacher/editteacher.html")
 
 def teacherdelete(request,id):
     teacher = Teachermodel.objects.get(id=id)
@@ -335,7 +385,7 @@ def adddepartment(request):
             )
             course.save()
             messages.success(request,error_messages["success"])
-            return redirect("departmentlist")
+            return redirect("adddepartment")
 
     return render(request,"department/adddepartment.html")
 
@@ -396,7 +446,7 @@ def addsubject(request):
         )
         sub.save()
         messages.success(request,error_messages["success"])
-        return redirect("subjectlist")
+        return redirect("addsubject")
     
     course = Coursemodel.objects.all()
     teacher = Teachermodel.objects.all()
@@ -411,9 +461,13 @@ def subjectlist(request):
     return render(request,"subjects/subjectlist.html",{'subject':subject})
 
 def editsubject(request,id):
-    subject = Subjectmodel.objects.get(id=id)
+    subject = Subjectmodel.objects.filter(id=id)
+    course=Coursemodel.objects.all()
+    teacher=Teachermodel.objects.all()
     context = {
-        'subject':subject
+        'subject':subject,
+        'course':course,
+        'teacher':teacher
     }
     return render(request,"subjects/editsubject.html",context)
 
@@ -425,20 +479,24 @@ def updatesubject(request):
     if request.method == "POST":
         sub_id = request.POST.get("subject_id")
         sub_name = request.POST.get("subject_name")
-        courseid = request.POST.get("course_id")
-        teacherid = request.POST.get("teacher_id")
+        course = request.POST.get("course_id")
+        teacher = request.POST.get("teacher_id")
         
-        courseid = Coursemodel.objects.get(id=courseid)
-        teacherid = Teachermodel.objects.get(id=teacherid)
+        subject = Subjectmodel.objects.get(id=sub_id)
+        subject.name = sub_name
+        course = Coursemodel.objects.get(id=course)
+        subject.course = course
+        teacher = Teachermodel.objects.get(id=teacher)
+        subject.teacher = teacher
 
-        subject=Subjectmodel(
-        id=sub_id,
-        name=sub_name,
-        course=courseid,
-        teacher=teacherid,
-        )
         subject.save()
- 
         messages.success(request, error_messages['success'])
-        return redirect("subjectList")
+        return redirect("subjectlist")
+    
     return render(request,"subjects/editsubject.html")
+
+
+def subjectdelete(request,id):
+    subject = Subjectmodel.objects.get(id=id)
+    subject.delete()
+    return redirect("subjectlist")

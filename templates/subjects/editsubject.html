@@ -1,6 +1,4 @@
-
-
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div class="row">
@@ -11,7 +9,7 @@
                {% csrf_token %}
 
                
-                {% for s in subject %}
+               {% for s in subject %}
                       
                 <div class="row">
                    <div class="col-12">
@@ -72,3 +70,4 @@
  </div>
     
 {% endblock  %}
+    
